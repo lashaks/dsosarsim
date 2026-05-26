@@ -153,12 +153,14 @@ function RFQDetailModal({ id, onClose }: { id: number; onClose: () => void }) {
   const [line, setLine] = useState({ supplier: "", unit_price: 0, total_price: 0, lead_days: 30 });
 
   if (!rfq) return null;
+  const rfqId = rfq.id;
+  const rfqQty = rfq.quantity;
 
   async function add() {
     if (!line.supplier || !line.unit_price) return toast.push({ kind: "error", title: "Supplier + price required" });
     try {
-      const total = line.total_price || line.unit_price * rfq.quantity;
-      await addLine.mutateAsync({ id: rfq.id, body: { ...line, total_price: total } });
+      const total = line.total_price || line.unit_price * rfqQty;
+      await addLine.mutateAsync({ id: rfqId, body: { ...line, total_price: total } });
       toast.push({ kind: "success", title: "Quote added" });
       setLine({ supplier: "", unit_price: 0, total_price: 0, lead_days: 30 });
     } catch (e: any) {
@@ -168,7 +170,7 @@ function RFQDetailModal({ id, onClose }: { id: number; onClose: () => void }) {
 
   async function doAward(lineId: number) {
     try {
-      const po = await award.mutateAsync({ rfqId: rfq.id, lineId });
+      const po = await award.mutateAsync({ rfqId, lineId });
       toast.push({ kind: "success", title: "Awarded", description: `PO ${po.po_number} created` });
       onClose();
     } catch (e: any) {

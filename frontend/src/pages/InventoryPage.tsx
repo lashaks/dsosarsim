@@ -8,6 +8,7 @@ import PageHeader from "../components/ui/PageHeader";
 import { Skeleton } from "../components/ui/Skeleton";
 import Modal from "../components/ui/Modal";
 import { ConditionBadge } from "../components/ui/StatusBadge";
+import type { Condition } from "../api/types";
 import { useToast } from "../components/ui/Toast";
 import { useI18n } from "../lib/i18n";
 import { formatSAR, formatDate, clsx } from "../lib/format";
@@ -239,7 +240,10 @@ function ReceiveModal({ inv, defaultWarehouseId, onClose }: { inv: Inventory | n
   const { data: warehouses } = useWarehouses();
   const receive = useReceiveStock();
   const toast = useToast();
-  const [form, setForm] = useState({
+  const [form, setForm] = useState<{
+    part_id: number; warehouse_id: number; quantity: number;
+    condition: Condition; unit_cost: number; po_reference: string;
+  }>({
     part_id: inv?.part_id || 0,
     warehouse_id: inv?.warehouse_id || defaultWarehouseId || 0,
     quantity: 1,
@@ -291,7 +295,7 @@ function ReceiveModal({ inv, defaultWarehouseId, onClose }: { inv: Inventory | n
             <input className="input" type="number" min={0.01} value={form.quantity} onChange={(e) => setForm({ ...form, quantity: Number(e.target.value) })} />
           </Field>
           <Field label="Condition">
-            <select className="input" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value })}>
+            <select className="input" value={form.condition} onChange={(e) => setForm({ ...form, condition: e.target.value as Condition })}>
               <option value="SERVICEABLE">SERVICEABLE</option>
               <option value="REPAIRABLE">REPAIRABLE</option>
               <option value="UNSERVICEABLE">UNSERVICEABLE</option>
